@@ -1,0 +1,26 @@
+global:
+  domain: argocd.awslz.bud-demo.com
+
+ingress:
+  enabled: true
+  host: argocd.awslz.bud-demo.com
+
+repo:
+  enabled: true
+  url: https://github.com/BudEcosystem/infra
+
+argo-cd:
+  configs:
+    cm:
+      url: https://argocd.awslz.bud-demo.com
+
+projects:
+  awslz:
+    clusterResourceWhitelist:
+      - group: "*"
+        kind: "*"
+    destinations:
+      - namespace: "*"
+        server: "https://kubernetes.default.svc"
+    sourceRepos:
+      - "*"
