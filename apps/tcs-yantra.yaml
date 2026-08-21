@@ -10,7 +10,7 @@ spec:
     targetRevision: HEAD
     path: appsets
     directory:
-      include: "tcs.yaml"
+      include: "tcs-yantra.yaml"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: "argocd"

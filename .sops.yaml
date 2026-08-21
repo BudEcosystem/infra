@@ -1,8 +1,10 @@
 keys:
   # people
   - &admin_sinan age1q5sfy74d53n6jxlgsc2zrsz4wcl9d830nxuagc3wfmdkrrp55ckq9ev6nv
+  - &admin_ditto age18xn7rqxu27kschgqs7u5x7af9evnpcp4sru34th6zhhwlwnwycpsajeeh9
   # machines
-  - &machine_tcs age1hux3h87h0480ss493kl292alfe6m6z5dhe76phvuk2c82hvg9clqmp6d8d
+  - &machine_tcs_yantra age1hux3h87h0480ss493kl292alfe6m6z5dhe76phvuk2c82hvg9clqmp6d8d
+  - &machine_tcs_vmware age1svl2wxt9ej0g59k2tgcaclt457hf6kc5mnuw6926j8tydj08vfyqc4a8a8
   - &machine_awslz age1svl2wxt9ej0g59k2tgcaclt457hf6kc5mnuw6926j8tydj08vfyqc4a8a8
 
 creation_rules:
@@ -10,19 +12,30 @@ creation_rules:
   - path_regex: '.*\.tcs\.yaml$'
     key_groups:
       - age:
-          - *machine_tcs
+          - *machine_tcs_yantra
           - *admin_sinan
+          - *admin_ditto
   - path_regex: '.*\.awslz\.yaml$'
     key_groups:
       - age:
           - *machine_awslz
           - *admin_sinan
+          - *admin_ditto
+  - path_regex: '.*\.tcs-vmware\.yaml$'
+    key_groups:
+      - age:
+          - *machine_tcs_vmware
+          - *admin_sinan
+          - *admin_ditto
   - path_regex: '.*\.demo\.yaml$'
     key_groups:
       - age:
-          - *machine_tcs
+          - *machine_tcs_yantra
+          - *machine_tcs_vmware
           - *machine_awslz
           - *admin_sinan
+          - *admin_ditto
   - key_groups:
       - age:
           - *admin_sinan
+          - *admin_ditto
