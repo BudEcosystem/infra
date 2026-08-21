@@ -1,9 +1,9 @@
 global:
-  domain: argocd.bud.tcsrss.com
+  domain: argocd.tcs-vmware.bud-demo.com
 
 ingress:
   enabled: true
-  host: argocd.bud.tcsrss.com
+  host: argocd.tcs-vmware.bud-demo.com
 
 repo:
   enabled: true
@@ -12,7 +12,7 @@ repo:
 argo-cd:
   configs:
     cm:
-      url: https://argocd.bud.tcsrss.com
+      url: https://argocd.tcs-vmware.bud-demo.com
 
 projects:
   tcs:
