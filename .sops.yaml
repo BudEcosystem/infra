@@ -4,7 +4,7 @@ keys:
   - &admin_ditto age18xn7rqxu27kschgqs7u5x7af9evnpcp4sru34th6zhhwlwnwycpsajeeh9
   # machines
   - &machine_tcs_yantra age1hux3h87h0480ss493kl292alfe6m6z5dhe76phvuk2c82hvg9clqmp6d8d
-  - &machine_tcs_vmware age1svl2wxt9ej0g59k2tgcaclt457hf6kc5mnuw6926j8tydj08vfyqc4a8a8
+  - &machine_tcs_vmware age1cp8rnfn8efvd6z9p3glwhgdh22q8vmw8y63hf7q702ahsc5lc50qsvv4su
   - &machine_awslz age1svl2wxt9ej0g59k2tgcaclt457hf6kc5mnuw6926j8tydj08vfyqc4a8a8
 
 creation_rules:
