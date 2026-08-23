@@ -37,6 +37,13 @@ microservices:
             # policy (values/kyverno/values.inject-logo.yaml) into public/branding.
             NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
             NEXT_PUBLIC_LOGO_AUTH_URL: "/branding/logo.png"
+    budcustomer:
+        # PR #2723 (branding env support) is not released yet; :nightly tracks master.
+        image: registry.bud.studio/runtime/budcustomer:nightly
+        env:
+            # LIGHT and AUTH mirror LOGO_URL when unset; ICON deliberately does not
+            # (a wide wordmark breaks the 40px collapsed-sidebar slot), so set it.
+            NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
     budsim:
         env:
             # Single/master-only node cluster: allow CPU deployments on control-plane nodes

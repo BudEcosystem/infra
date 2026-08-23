@@ -13,9 +13,10 @@
 # Pairs with, in values/bud/values.<env>.yaml:
 #   microservices.budadmin.env.NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
 clusterPolicies:
-  inject-budadmin-logo:
+  inject-frontend-logo:
     background: false
     rules:
+      # budadmin serves ./public from /usr/bin/src/public
       - name: inject-budadmin-logo
         match:
           any:
@@ -40,4 +41,30 @@ clusterPolicies:
                   volumeMounts:
                     - name: branding
                       mountPath: /usr/bin/src/public/branding
+                      readOnly: true
+      # budcustomer serves ./public from /usr/src/app/public (different app root)
+      - name: inject-budcustomer-logo
+        match:
+          any:
+            - resources:
+                kinds:
+                  - Pod
+                namespaces:
+                  - "bud"
+                selector:
+                  matchLabels:
+                    app: bud-budcustomer
+        mutate:
+          patchStrategicMerge:
+            spec:
+              volumes:
+                - name: branding
+                  hostPath:
+                    path: /home/administrator/logo
+                    type: Directory
+              containers:
+                - (name): "bud-budcustomer"
+                  volumeMounts:
+                    - name: branding
+                      mountPath: /usr/src/app/public/branding
                       readOnly: true
