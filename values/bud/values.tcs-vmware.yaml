@@ -38,12 +38,15 @@ microservices:
             NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
             NEXT_PUBLIC_LOGO_AUTH_URL: "/branding/logo.png"
     budcustomer:
-        # PR #2723 (branding env support) is not released yet; :nightly tracks master.
+        # :nightly carries PR #2723 (branding env support), not yet in a release.
         image: registry.bud.studio/runtime/budcustomer:nightly
         env:
-            # LIGHT and AUTH mirror LOGO_URL when unset; ICON deliberately does not
-            # (a wide wordmark breaks the 40px collapsed-sidebar slot), so set it.
-            NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
+            # Absolute URL, not /branding/... — budcustomer is a nix build and
+            # serves public/ from a read-only, hash-versioned /nix/store path, so
+            # the kyverno hostPath mount used for budadmin cannot reach it.
+            # Served here by budadmin, which does have the file mounted.
+            # LIGHT and AUTH mirror LOGO_URL when unset.
+            NEXT_PUBLIC_LOGO_URL: "https://admin.tcs-vmware.bud-demo.com/branding/logo.png"
     budsim:
         env:
             # Single/master-only node cluster: allow CPU deployments on control-plane nodes

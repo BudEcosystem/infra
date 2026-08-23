@@ -42,29 +42,10 @@ clusterPolicies:
                     - name: branding
                       mountPath: /usr/bin/src/public/branding
                       readOnly: true
-      # budcustomer serves ./public from /usr/src/app/public (different app root)
-      - name: inject-budcustomer-logo
-        match:
-          any:
-            - resources:
-                kinds:
-                  - Pod
-                namespaces:
-                  - "bud"
-                selector:
-                  matchLabels:
-                    app: bud-budcustomer
-        mutate:
-          patchStrategicMerge:
-            spec:
-              volumes:
-                - name: branding
-                  hostPath:
-                    path: /home/administrator/logo
-                    type: Directory
-              containers:
-                - (name): "bud-budcustomer"
-                  volumeMounts:
-                    - name: branding
-                      mountPath: /usr/src/app/public/branding
-                      readOnly: true
+
+# NOTE: budcustomer is NOT mounted here. It is a nix build
+# (nix/packages/budcustomer.nix), so Next serves public/ from
+#   /nix/store/<hash>-budcustomer-<version>/share/budcustomer/public
+# — a read-only path whose hash changes on every image build, so no stable
+# mountPath exists. budcustomer takes its logo as an absolute URL instead,
+# via NEXT_PUBLIC_LOGO_URL in values/bud/values.<env>.yaml.
