@@ -31,6 +31,12 @@ microservices:
                         - '{{ include "bud.ingress.hosts.budplayground" . }}'
                     allowedReturnUrlOrigins:
                         - '{{ include "bud.ingress.url.budplayground" . }}'
+    budadmin:
+        env:
+            # Served from the node dir mounted by the kyverno inject-budadmin-logo
+            # policy (values/kyverno/values.inject-logo.yaml) into public/branding.
+            NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
+            NEXT_PUBLIC_LOGO_AUTH_URL: "/branding/logo.png"
     budsim:
         env:
             # Single/master-only node cluster: allow CPU deployments on control-plane nodes

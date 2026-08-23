@@ -1,0 +1,43 @@
+# White-label logo for budadmin.
+#
+# The bud chart already exposes NEXT_PUBLIC_LOGO_URL / NEXT_PUBLIC_LOGO_AUTH_URL
+# (substituted at container start by budadmin's entrypoint.sh), but it has no way
+# to place the image file inside the container. This policy mounts a directory
+# from the node into budadmin's Next.js public/ tree at admission time.
+#
+# Next serves ./public from /usr/bin/src/public, so files under
+# /usr/bin/src/public/branding are reachable at /branding/<file>.
+# A NEW subdirectory is used deliberately: mounting over public/images would
+# shadow every stock asset in that folder.
+#
+# Pairs with, in values/bud/values.<env>.yaml:
+#   microservices.budadmin.env.NEXT_PUBLIC_LOGO_URL: "/branding/logo.png"
+clusterPolicies:
+  inject-budadmin-logo:
+    background: false
+    rules:
+      - name: inject-budadmin-logo
+        match:
+          any:
+            - resources:
+                kinds:
+                  - Pod
+                namespaces:
+                  - "bud"
+                selector:
+                  matchLabels:
+                    app: bud-budadmin
+        mutate:
+          patchStrategicMerge:
+            spec:
+              volumes:
+                - name: branding
+                  hostPath:
+                    path: /home/administrator/logo
+                    type: Directory
+              containers:
+                - (name): "bud-budadmin"
+                  volumeMounts:
+                    - name: branding
+                      mountPath: /usr/bin/src/public/branding
+                      readOnly: true
