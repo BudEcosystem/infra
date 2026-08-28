@@ -28,6 +28,10 @@ ingress:
   enabled: true
   className: traefik
   host: studio.tcs-vmware.bud-demo.com
+  # REQUIRED for TLS: the chart renders the Ingress `tls:` block only when this
+  # is set, and cert-manager's ingress-shim needs that block to issue at all.
+  # Without it traefik falls back to its own default cert and browsers error.
+  tlsSecretName: bud-studio-acme-cert
   # cert-manager's ingress-shim issues through the cluster's default issuer,
   # selfsigned-ca (see values/cert-manager/values.selfsigned-ca.yaml) — this
   # cluster cannot reach Let's Encrypt, so ACME is not in play here.
