@@ -1,0 +1,68 @@
+# budagent (Bud Studio) on tcs-vmware — https://studio.tcs-vmware.bud-demo.com
+#
+# Installed by appsets/tcs-vmware.yaml into its own `bud-studio` namespace; the
+# bud release lives in `bud`, so cross-service URLs are qualified with `.bud`.
+# Adapted from sinanmohd/tcs-infra values/bud-studio/values.tcs.yaml.
+#
+# Release `bud-studio`, chart `budagent`: the chart's fullname helper drops the
+# release prefix only when the release name contains the chart name, so without
+# this every object would render as `bud-studio-budagent`.
+fullnameOverride: bud-studio
+
+image:
+  repository: registry.bud.studio/runtime/budagent
+  pullPolicy: IfNotPresent
+  # No pullSecrets here: the chart creates the Secret from `registries` in
+  # secrets.demo.yaml (chart >= 0.3.6) and references it while this is empty.
+
+web:
+  enabled: true
+  image:
+    repository: registry.bud.studio/runtime/budagent-web
+    pullPolicy: IfNotPresent
+
+budagent:
+  corsOrigin: "*"
+
+ingress:
+  enabled: true
+  className: traefik
+  host: studio.tcs-vmware.bud-demo.com
+  # cert-manager's ingress-shim issues through the cluster's default issuer,
+  # selfsigned-ca (see values/cert-manager/values.selfsigned-ca.yaml) — this
+  # cluster cannot reach Let's Encrypt, so ACME is not in play here.
+  annotations:
+    kubernetes.io/tls-acme: "true"
+
+# --- Database -------------------------------------------------------------
+# Shared CloudNativePG cluster in the `postgres` namespace. The `budagent`
+# database comes from the `bud` user's `databases:` list in
+# values/postgres/values.budruntime.yaml. Connection string is in
+# secrets.demo.yaml as externalDatabase.url.
+postgresql:
+  enabled: false
+
+# --- Keycloak -------------------------------------------------------------
+# The realm at auth.tcs-vmware.bud-demo.com. budagent validates tokens minted
+# for the budadmin-web client, so it reuses that client rather than owning one;
+# the client is provisioned by the keycloak chart, hence clientBootstrap off.
+keycloak:
+  enabled: false
+  clientBootstrap:
+    enabled: false
+
+externalKeycloak:
+  baseUrl: https://auth.tcs-vmware.bud-demo.com
+  realm: bud-keycloak
+  clientId: budadmin-web
+
+# --- Bud platform wiring (all in the `bud` namespace) ----------------------
+# The chart defaults already point at bud-<component>.bud.svc.cluster.local,
+# which is correct here, so only the model needs attention.
+budGateway:
+  enabled: true
+  # MUST name a model actually deployed on this cluster. Left at the chart
+  # default until one is onboarded — agent runs will fail until it is changed.
+  model: "claude-sonnet-4-20250514"
+  # apiKey intentionally unset: with no key and no existingSecret, budagent
+  # forwards the caller's Keycloak bearer token to the gateway.
