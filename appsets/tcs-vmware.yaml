@@ -76,6 +76,10 @@ spec:
               - "example.minimal.yaml"
               - "$values/values/postgres/values.budruntime.yaml"
               - "$values/values/postgres/values.minimal.budruntime.yaml"
+              # LAST, and additive: `users` is a map, so Helm merges it across files
+              # rather than replacing it. This adds GPU Foundry's three roles and leaves
+              # bud, keycloak and seaweedfs untouched.
+              - "$values/values/postgres/values.tcs-vmware.yaml"
           - name: seaweedfs
             namespace: seaweedfs
             repoURL: registry.bud.studio/charts
