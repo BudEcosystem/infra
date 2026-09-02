@@ -10,9 +10,11 @@
 # (login, non-superuser), a `cnpg-user-<name>` basic-auth Secret, and a Database owned
 # by that role — all in the postgres namespace.
 #
-# Hyphens in the key, underscores in the database name, and the asymmetry is forced:
-# the Secret is named `cnpg-user-<key>`, and a Kubernetes object name cannot contain
-# an underscore.
+# NO UNDERSCORES ANYWHERE — not in the key, not in the database name. Both end up
+# inside Kubernetes object names, which must be RFC 1123 subdomains: the Secret is
+# `cnpg-user-<key>` and the Database resource is `<key>-<database>`. `foundry_identity`
+# renders a template that is valid YAML and is rejected by the api-server, which
+# `helm template` cannot tell you because it never asks one.
 #
 # PLAINTEXT, like every other values file this ApplicationSet references. .sops.yaml
 # has a rule for *.tcs-vmware.yaml, but sops only encrypts a file when someone runs it,
@@ -23,12 +25,12 @@ users:
   foundry-identity:
     password: "iMvnLYSmneowD9gJR8C4fUG9RivOQWjn"
     databases:
-      - foundry_identity
+      - foundry-identity
   foundry-revenue:
     password: "SU8h3ftvCDF39aiqOu68YqAijMFJPNF7"
     databases:
-      - foundry_revenue
+      - foundry-revenue
   foundry-platform:
     password: "cbhqSNW8BUlEEyDLl58ZbyrAstKQLs5z"
     databases:
-      - foundry_platform
+      - foundry-platform
