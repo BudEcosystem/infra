@@ -1,0 +1,34 @@
+# GPU Foundry's three blast domains, on this cluster's shared Postgres.
+#
+# THREE USERS, ONE DATABASE EACH — deliberately not one user owning three. ADR-8 in
+# that repository splits state into identity, revenue and platform so that a single
+# leaked credential reaches one of them. Sharing an instance gives up the FAILURE
+# boundary; collapsing the roles as well would give up the credential boundary too, and
+# keep the name.
+#
+# The chart turns each entry into a Postgres role in the cluster's managed.roles
+# (login, non-superuser), a `cnpg-user-<name>` basic-auth Secret, and a Database owned
+# by that role — all in the postgres namespace.
+#
+# Hyphens in the key, underscores in the database name, and the asymmetry is forced:
+# the Secret is named `cnpg-user-<key>`, and a Kubernetes object name cannot contain
+# an underscore.
+#
+# PLAINTEXT, like every other values file this ApplicationSet references. .sops.yaml
+# has a rule for *.tcs-vmware.yaml, but sops only encrypts a file when someone runs it,
+# and Argo's repo-server here carries no decryption plugin — an encrypted file in
+# valueFiles would fail to render rather than be decrypted. secrets.bud.yaml is
+# encrypted and, consistently, referenced by nothing.
+users:
+  foundry-identity:
+    password: "iMvnLYSmneowD9gJR8C4fUG9RivOQWjn"
+    databases:
+      - foundry_identity
+  foundry-revenue:
+    password: "SU8h3ftvCDF39aiqOu68YqAijMFJPNF7"
+    databases:
+      - foundry_revenue
+  foundry-platform:
+    password: "cbhqSNW8BUlEEyDLl58ZbyrAstKQLs5z"
+    databases:
+      - foundry_platform
