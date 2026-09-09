@@ -1,0 +1,15 @@
+ingress:
+  enabled: true
+  https: true
+  className: openshift-default
+  isTraefik: false
+  host: s3.openshift.bud-demo.com
+
+buckets:
+  bud-models-registry:
+    quota:
+      size: 256Gi
+
+seaweedfs-operator:
+  webhook:
+    podSecurityContext: null

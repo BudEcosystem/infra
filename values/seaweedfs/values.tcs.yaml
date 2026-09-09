@@ -1,4 +1,5 @@
 ingress:
   enabled: true
   https: true
+  isTraefik: false
   host: s3.tcs-vmware.bud-demo.com

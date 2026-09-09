@@ -1,0 +1,28 @@
+global:
+  domain: argocd.openshift.bud-demo.com
+
+ingress:
+  enabled: true
+  className: openshift-default
+  isTraefik: false
+  host: argocd.openshift.bud-demo.com
+
+repo:
+  enabled: true
+  url: https://github.com/BudEcosystem/infra
+
+argo-cd:
+  configs:
+    cm:
+      url: https://argocd.openshift.bud-demo.com
+
+projects:
+  openshift:
+    clusterResourceWhitelist:
+      - group: "*"
+        kind: "*"
+    destinations:
+      - namespace: "*"
+        server: "https://kubernetes.default.svc"
+    sourceRepos:
+      - "*"
