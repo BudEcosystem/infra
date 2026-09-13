@@ -42,3 +42,5 @@ microservices:
             # Single/master-only node cluster: allow model-transfer and runtime pods
             # to schedule on the control-plane node (drops the master-excluding affinity)
             SKIP_MASTER_NODE_FOR_CPU: "false"
+    semanticRouter:
+        enabled: false
