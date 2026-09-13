@@ -44,3 +44,15 @@ microservices:
             SKIP_MASTER_NODE_FOR_CPU: "false"
     semanticRouter:
         enabled: false
+    buddoc:
+        enabled: false
+    askbud:
+        enabled: false
+    budcodeinterpreter:
+        enabled: false
+    budcustomer:
+        enabled: false
+    budpipeline:
+        enabled: false
+    budsentinel:
+        enabled: false
