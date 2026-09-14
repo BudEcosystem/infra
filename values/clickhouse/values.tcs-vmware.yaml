@@ -14,6 +14,12 @@
 #   foundry_logs_reader     foundry-api: SELECT lines and session recordings. Cannot write.
 #   foundry_logs_recorder   access-gateway: INSERT session recordings. Cannot read anything,
 #                           so the process holding a live shell cannot read past sessions.
+#                           Also CREATE TEMPORARY TABLE, which ClickHouse requires for the
+#                           input() table function the recorder's INSERT converts its
+#                           nanosecond timestamps through. Without it every chunk was
+#                           refused (Code 497) while the gateway reported recordings ON.
+#                           It creates session-scoped tables only; reading another source
+#                           through a table function needs a source grant it does not hold.
 #
 # TWO TABLES, NOT FOUR: this store is one shard, so gpu-foundry's schema creates `lines` and
 # `session_recordings` as plain MergeTree tables, with no Distributed layer and no per-shard
@@ -21,7 +27,8 @@
 #
 # GRANTS ON TABLES THAT DO NOT EXIST YET ARE VALID: ClickHouse stores the grant, and
 # gpu-foundry's schema Job creates the tables afterwards — then checks, as each user, that
-# the collector cannot read and the reader cannot write, and fails its sync if either can.
+# the collector cannot read and the reader cannot write, that the recorder can write the
+# gateway's exact statement and cannot read, and fails its sync otherwise.
 #
 # UNDERSCORES ARE SAFE HERE, unlike the Postgres roles: these names reach ClickHouse and
 # nothing in Kubernetes. LAST in valueFiles and additive — `users` is a map, so bud's entry
@@ -51,3 +58,4 @@ users:
     password: "8dd3339edff302188561873a4a5e7294ea4295a863cb89fb"
     grants:
       - INSERT ON tenant_logs.session_recordings
+      - CREATE TEMPORARY TABLE ON *.*
