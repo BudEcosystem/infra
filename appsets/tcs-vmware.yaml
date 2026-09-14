@@ -67,6 +67,9 @@ spec:
             valueFiles:
               - "example.minimal.yaml"
               - "$values/values/clickhouse/values.budruntime.yaml"
+              # LAST, and additive: `users` is a map, so Helm merges it across files.
+              # Adds GPU Foundry's four tenant-log users and leaves bud untouched.
+              - "$values/values/clickhouse/values.tcs-vmware.yaml"
           - name: postgres
             namespace: postgres
             repoURL: registry.bud.studio/charts

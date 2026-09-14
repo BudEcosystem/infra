@@ -1,0 +1,53 @@
+# GPU Foundry's tenant-log store, on this cluster's shared ClickHouse (M3 D8, close-out).
+#
+# ONE DATABASE, FOUR USERS, AND NO USER OWNS IT. gpu-foundry designed tenant logs for a
+# ClickHouse of their own; on this shared dev cluster they live in a `tenant_logs`
+# database here instead. Sharing the instance gives up the FAILURE boundary; the
+# credential boundary is kept, which is why nothing below is listed under `databases:` —
+# the chart grants ALL on a listed database, and ALL includes deleting a tenant's lines.
+# Every privilege is an explicit GRANT, per table, per verb:
+#
+#   foundry_logs_schema     creates the database and tables, and may change a TTL.
+#                           No INSERT, no SELECT on a tenant table, no DELETE.
+#   foundry_logs_collector  the OTel collector: INSERT lines, and SHOW COLUMNS for the
+#                           exporter's start-up probe. Cannot read a tenant's lines.
+#   foundry_logs_reader     foundry-api: SELECT lines and session recordings. Cannot write.
+#   foundry_logs_recorder   access-gateway: INSERT session recordings. Cannot read anything,
+#                           so the process holding a live shell cannot read past sessions.
+#
+# GRANTS ON TABLES THAT DO NOT EXIST YET ARE VALID: ClickHouse stores the grant, and
+# gpu-foundry's schema Job creates the tables afterwards — then checks, as each user, that
+# the collector cannot read and the reader cannot write, and fails its sync if either can.
+#
+# UNDERSCORES ARE SAFE HERE, unlike the Postgres roles: these names reach ClickHouse and
+# nothing in Kubernetes. LAST in valueFiles and additive — `users` is a map, so bud's entry
+# is untouched.
+#
+# PLAINTEXT, like values/postgres/values.tcs-vmware.yaml, for the reason given there.
+users:
+  foundry_logs_schema:
+    password: "ad5ddc523956c205a24598882d12c8b5266d06dbf865a3d0"
+    grants:
+      - CREATE DATABASE ON tenant_logs.*
+      - CREATE TABLE ON tenant_logs.*
+      - ALTER TTL ON tenant_logs.*
+      - SHOW TABLES ON tenant_logs.*
+      - SELECT ON system.tables
+  foundry_logs_collector:
+    password: "309147c33ba843ce0bf21cde400e3e7e2cf597449eba6b96"
+    grants:
+      - INSERT ON tenant_logs.lines
+      - INSERT ON tenant_logs.lines_local
+      - SHOW COLUMNS ON tenant_logs.lines
+  foundry_logs_reader:
+    password: "ac0ae1e3336deb27d6050f726f3e41c54ad8c0f149d2ba2b"
+    grants:
+      - SELECT ON tenant_logs.lines
+      - SELECT ON tenant_logs.lines_local
+      - SELECT ON tenant_logs.session_recordings
+      - SELECT ON tenant_logs.session_recordings_local
+  foundry_logs_recorder:
+    password: "a4f6411b6d3da88fd89491f2dc479c192c929b0de63bc104"
+    grants:
+      - INSERT ON tenant_logs.session_recordings
+      - INSERT ON tenant_logs.session_recordings_local
