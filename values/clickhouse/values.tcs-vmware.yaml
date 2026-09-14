@@ -15,6 +15,10 @@
 #   foundry_logs_recorder   access-gateway: INSERT session recordings. Cannot read anything,
 #                           so the process holding a live shell cannot read past sessions.
 #
+# TWO TABLES, NOT FOUR: this store is one shard, so gpu-foundry's schema creates `lines` and
+# `session_recordings` as plain MergeTree tables, with no Distributed layer and no per-shard
+# tables for these grants to reach.
+#
 # GRANTS ON TABLES THAT DO NOT EXIST YET ARE VALID: ClickHouse stores the grant, and
 # gpu-foundry's schema Job creates the tables afterwards — then checks, as each user, that
 # the collector cannot read and the reader cannot write, and fails its sync if either can.
@@ -30,10 +34,6 @@ users:
     grants:
       - CREATE DATABASE ON tenant_logs.*
       - CREATE TABLE ON tenant_logs.*
-      # ClickHouse 26 gates creating a table by its engine. The tenant-log tables are
-      # MergeTree under a Distributed table over this installation's cluster, and the
-      # schema Job's first sync was refused at the Distributed statement without this.
-      - TABLE ENGINE ON Distributed
       - ALTER TTL ON tenant_logs.*
       - SHOW TABLES ON tenant_logs.*
       - SELECT ON system.tables
@@ -41,17 +41,13 @@ users:
     password: "309147c33ba843ce0bf21cde400e3e7e2cf597449eba6b96"
     grants:
       - INSERT ON tenant_logs.lines
-      - INSERT ON tenant_logs.lines_local
       - SHOW COLUMNS ON tenant_logs.lines
   foundry_logs_reader:
-    password: "ac0ae1e3336deb27d6050f726f3e41c54ad8c0f149d2ba2b"
+    password: "c2027d3fa3f6f678a52b64a885f8497a0792c99336290dff"
     grants:
       - SELECT ON tenant_logs.lines
-      - SELECT ON tenant_logs.lines_local
       - SELECT ON tenant_logs.session_recordings
-      - SELECT ON tenant_logs.session_recordings_local
   foundry_logs_recorder:
-    password: "a4f6411b6d3da88fd89491f2dc479c192c929b0de63bc104"
+    password: "8dd3339edff302188561873a4a5e7294ea4295a863cb89fb"
     grants:
       - INSERT ON tenant_logs.session_recordings
-      - INSERT ON tenant_logs.session_recordings_local
