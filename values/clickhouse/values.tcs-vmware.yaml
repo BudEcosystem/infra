@@ -30,6 +30,10 @@ users:
     grants:
       - CREATE DATABASE ON tenant_logs.*
       - CREATE TABLE ON tenant_logs.*
+      # ClickHouse 26 gates creating a table by its engine. The tenant-log tables are
+      # MergeTree under a Distributed table over this installation's cluster, and the
+      # schema Job's first sync was refused at the Distributed statement without this.
+      - TABLE ENGINE ON Distributed
       - ALTER TTL ON tenant_logs.*
       - SHOW TABLES ON tenant_logs.*
       - SELECT ON system.tables
